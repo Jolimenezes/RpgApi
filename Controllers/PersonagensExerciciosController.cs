@@ -10,6 +10,7 @@ using RpgApi.Models.Enuns;
 
 namespace RpgApi.Controllers
 {
+    [ApiController]
     [Route("[controller]")]
     public class PersonagensExerciciosController : Controller
     {
@@ -30,11 +31,70 @@ namespace RpgApi.Controllers
         {
             List<Personagem> listaBusca = personagens.FindAll(p => p.Nome.Contains(nome));
 
-            if (listaBusca == null) {
+            if (listaBusca == null)
+            {
                 return BadRequest("Nome não encontrado na lista, certifique-se de ter digitado todos os caracteres corretamente");
-            } else {
+            }
+            else
+            {
                 return Ok(listaBusca);
             }
+        }
+
+        [HttpGet("GetClerigoMago")]
+        public IActionResult GetClerigosMagos()
+        {
+            personagens.RemoveAll(p => p.Classe == ClasseEnum.Cavaleiro);
+
+            return Ok(personagens.OrderByDescending(p => p.PontosVida));
+        }
+
+        [HttpGet("GetEstatisticas")]
+        public IActionResult GetEstatisticas()
+        {
+            int somaInteligencia = personagens.Sum(p => p.Inteligencia);
+
+            return Ok($"Quantidade de personagens: {personagens.Count}, Soma da Inteligência: {somaInteligencia}");
+        }
+
+        [HttpPost("PostValidacao")]
+        public IActionResult PostValidacao(Personagem personagem)
+        {
+            if (personagem.Defesa < 10)
+                return BadRequest("A defesa do personagem precisa ser maior que 10 pontos");
+            else if (personagem.Inteligencia > 30)
+                return BadRequest("A inteligência do personagem não pode ser maior que 30 pontos");
+            else
+            {
+                personagens.Add(personagem);
+                return Ok(personagens);
+            }
+        }
+
+        [HttpPost("PostValidacaoMago")]
+        public IActionResult PostValidacaoMago(Personagem personagem)
+        {
+            if (personagem.Classe == ClasseEnum.Mago && personagem.Inteligencia < 35)
+            {
+                return BadRequest("Personagem do tipo Mago deve ter inteligência maior ou igual a 35.");
+            }
+            personagens.Add(personagem);
+            return Ok(personagens);
+        }
+
+        [HttpGet("GetByClasse/{classeId}")]
+        public IActionResult GetByClasse(int classeId)
+        {
+            if (classeId < 1 || classeId > 3)
+            {
+                return BadRequest("Classe não existe");
+            }
+
+            ClasseEnum classeSelecionada = (ClasseEnum)classeId;
+
+            List<Personagem> listaBusca = personagens.FindAll(p => p.Classe == classeSelecionada);
+            
+            return Ok(listaBusca);
         }
     }
 }
