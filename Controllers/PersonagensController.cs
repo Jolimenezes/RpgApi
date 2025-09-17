@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RpgApi.Data;
 using RpgApi.Models;
-using RpgApi.Models.Enuns;
 
 namespace RpgApi.Controllers
 {
@@ -12,77 +13,82 @@ namespace RpgApi.Controllers
     [Route("[controller]")]
     public class PersonagensController : ControllerBase
     {
-        private static List<Personagem> personagens = new List<Personagem>()
-        {
-            //Colar os objetos da lista do chat aqui
-            new Personagem() { Id = 1, Nome = "Frodo", PontosVida=100, Forca=17, Defesa=23, Inteligencia=33, Classe=ClasseEnum.Cavaleiro},
-            new Personagem() { Id = 2, Nome = "Sam", PontosVida=100, Forca=15, Defesa=25, Inteligencia=30, Classe=ClasseEnum.Cavaleiro},
-            new Personagem() { Id = 3, Nome = "Galadriel", PontosVida=100, Forca=18, Defesa=21, Inteligencia=35, Classe=ClasseEnum.Clerigo },
-            new Personagem() { Id = 4, Nome = "Gandalf", PontosVida=100, Forca=18, Defesa=18, Inteligencia=37, Classe=ClasseEnum.Mago },
-            new Personagem() { Id = 5, Nome = "Hobbit", PontosVida=100, Forca=20, Defesa=17, Inteligencia=31, Classe=ClasseEnum.Cavaleiro },
-            new Personagem() { Id = 6, Nome = "Celeborn", PontosVida=100, Forca=21, Defesa=13, Inteligencia=34, Classe=ClasseEnum.Clerigo },
-            new Personagem() { Id = 7, Nome = "Radagast", PontosVida=100, Forca=25, Defesa=11, Inteligencia=35, Classe=ClasseEnum.Mago }
-        };
+        private readonly DataContext _context;
 
-        [HttpGet("Get")]
-        public IActionResult GetFirst()
+        public PersonagensController(DataContext context)
         {
-            Personagem p = personagens[0];
-            return Ok(p);
-        }
-
-        [HttpGet("GetAll")]
-        public IActionResult Get()
-        {
-            return Ok(personagens);
+            _context = context;
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetSingle(int id)
+        public async Task<IActionResult> GetSingle(int id)
         {
-            return Ok(personagens.FirstOrDefault(pe => pe.Id == id));
+            try
+            {
+                Personagem p = await _context.TB_PERSONAGENS.FirstOrDefaultAsync(pBusca => pBusca.Id == id);
+
+                return Ok(p);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpPost]
-        public IActionResult AddPersonagem(Personagem novoPersonagem)
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> Get()
         {
-            personagens.Add(novoPersonagem);
-            return Ok(personagens);
+            try
+            {
+                List<Personagem> lista = await _context.TB_PERSONAGENS.ToListAsync();
+
+                return Ok(lista);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }       
+
+        [HttpPost]
+        public async Task<IActionResult> Add(Personagem novoPersonagem)
+        {
+            try
+            {
+                if (novoPersonagem.PontosVida > 100)
+                {
+                    throw new Exception ("Pontos de vida não podem ser maiores que 100");
+                }
+                await _context.TB_PERSONAGENS.AddAsync(novoPersonagem);
+                await _context.SaveChangesAsync();
+
+                return Ok(novoPersonagem.Id);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut]
-        public IActionResult UpdatePersonagem(Personagem p)
+        public async Task<IActionResult> Update(Personagem novoPersonagem)
         {
-            Personagem personagemAlterado = personagens.Find(pers => pers.Id == p.Id);
-            personagemAlterado.Nome = p.Nome;
-            personagemAlterado.PontosVida = p.PontosVida;
-            personagemAlterado.Forca = p.Forca;
-            personagemAlterado.Defesa = p.Defesa;
-            personagemAlterado.Inteligencia = p.Inteligencia;
-            personagemAlterado.Classe = p.Classe;
+            try
+            {
+                if (novoPersonagem.PontosVida > 100)
+                {
+                    throw new Exception ("Pontos de vida não podem ser maiores que 100");
+                }
+                _context.TB_PERSONAGENS.Update(novoPersonagem);
+                int linhasAfetadas = await _context.SaveChangesAsync();
 
-            return Ok(personagens);
+                return Ok(linhasAfetadas);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-
-        [HttpDelete("{Id}")]
-        public IActionResult Delete(int Id)
-        {
-            personagens.RemoveAll(pers => pers.Id == Id);
-
-            return Ok(personagens);
-        }
-
-
-
-
-
-
-
-
-
-
-
-
 
     }
 }
