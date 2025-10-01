@@ -23,6 +23,10 @@ namespace RpgApi.Data
 
         public DbSet<Usuario> TB_USUARIOS { get; set; }
 
+        public DbSet<Habilidade> TB_HABILIDADES { get; set; }
+
+        public DbSet<PersonagemHabilidade> TB_PERSONAGENS_HABILIDADES { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.ConfigureWarnings(warnings => warnings
@@ -32,6 +36,12 @@ namespace RpgApi.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Personagem>().ToTable("TB_PERSONAGENS");
+
+            modelBuilder.Entity<Personagem>()
+                .HasOne(e => e.Arma)
+                .WithOne(e => e.Personagem)
+                .HasForeignKey<Armas>(e => e.PersonagemId)
+                .IsRequired();
 
             modelBuilder.Entity<Personagem>().HasData
             (
@@ -48,13 +58,13 @@ namespace RpgApi.Data
 
             modelBuilder.Entity<Armas>().HasData
             (
-                new Armas() { Id = 1, Nome ="Zangetsu", Dano = 25 },
-                new Armas() { Id = 2, Nome ="Cassull & Chacal", Dano = 10 },
-                new Armas() { Id = 3, Nome ="Lança Invertida do Céu", Dano = 20 },
-                new Armas() { Id = 4, Nome ="Kamutoke", Dano = 35 },
-                new Armas() { Id = 5, Nome ="Ragnork Demon", Dano = 45 },
-                new Armas() { Id = 6, Nome ="Master Sword", Dano = 50 },
-                new Armas() { Id = 7, Nome ="Ferrão Puro", Dano = 21 }
+                new Armas() { Id = 1, Nome ="Zangetsu", Dano = 25, PersonagemId = 1 },
+                new Armas() { Id = 2, Nome ="Cassull & Chacal", Dano = 10, PersonagemId = 2 },
+                new Armas() { Id = 3, Nome ="Lança Invertida do Céu", Dano = 20, PersonagemId = 3 },
+                new Armas() { Id = 4, Nome ="Kamutoke", Dano = 35, PersonagemId = 4 },
+                new Armas() { Id = 5, Nome ="Ragnork Demon", Dano = 45, PersonagemId = 5 },
+                new Armas() { Id = 6, Nome ="Master Sword", Dano = 50, PersonagemId = 6 },
+                new Armas() { Id = 7, Nome ="Ferrão Puro", Dano = 21, PersonagemId = 7 }
             );
 
             modelBuilder.Entity<Usuario>().ToTable("TB_USUARIOS");
@@ -81,7 +91,35 @@ namespace RpgApi.Data
             modelBuilder.Entity<Usuario>().HasData(user);
             
             modelBuilder.Entity<Usuario>().Property(u => u.Perfil).HasDefaultValue("Jogador");
-                
+
+
+             modelBuilder.Entity<Habilidade>().ToTable("TB_HABILIDADES");
+
+             modelBuilder.Entity<Habilidade>().HasData
+            (
+                new Habilidade() { Id = 1, Nome ="Telecinesia", Dano = 10},
+                new Habilidade() { Id = 2, Nome ="Confusão", Dano = 20},
+                new Habilidade() { Id = 3, Nome ="Projeção", Dano = 25}
+            );
+
+             modelBuilder.Entity<PersonagemHabilidade>().ToTable("TB_PERSONAGENS_HABILIDADES");
+
+             modelBuilder.Entity<PersonagemHabilidade>()
+             .HasKey(ph => new {ph.PersonagemId, ph.HabilidadeId});
+
+             modelBuilder.Entity<PersonagemHabilidade>().HasData
+            (
+                new PersonagemHabilidade() { PersonagemId = 1, HabilidadeId = 1},
+                new PersonagemHabilidade() { PersonagemId = 1, HabilidadeId = 2},
+                new PersonagemHabilidade() { PersonagemId = 2, HabilidadeId = 2},
+                new PersonagemHabilidade() { PersonagemId = 3, HabilidadeId = 2},
+                new PersonagemHabilidade() { PersonagemId = 3, HabilidadeId = 3},
+                new PersonagemHabilidade() { PersonagemId = 4, HabilidadeId = 3},
+                new PersonagemHabilidade() { PersonagemId = 5, HabilidadeId = 1},
+                new PersonagemHabilidade() { PersonagemId = 6, HabilidadeId = 2},
+                new PersonagemHabilidade() { PersonagemId = 7, HabilidadeId = 3}
+            );
+
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
