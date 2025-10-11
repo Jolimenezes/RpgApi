@@ -51,27 +51,23 @@ namespace RpgApi.Controllers
         }       
 
         [HttpPost]
-        public async Task<IActionResult> Add(Armas novoArma)
+        public async Task<IActionResult> Add(Armas novaArma)
         {
-            try
+            try 
             {
-                if (novoArma.Dano > 70)
-                {
-                    throw new Exception ("O dano da arma não pode ser maior que 70");
-                }
+                if (novaArma.Dano > 50)
+                    throw new Exception("Pontos de dano não podem ser maiores que 50");
 
-                Personagem p = await _context .TB_PERSONAGENS.FirstOrDefaultAsync(p => p.Id == novoArma.PersonagemId);
+                Personagem p = await _context.TB_PERSONAGENS
+                    .FirstOrDefaultAsync(p => p.Id == novaArma.PersonagemId) 
+                    ?? throw new Exception("Não existe personagem com o Id informado");
 
-                if(p == null)
-                {
-                    throw new Exception ("Não existe personagem com Id informado");
-                }
-
-                await _context.TB_ARMAS.AddAsync(novoArma);
+                await _context.TB_ARMAS.AddAsync(novaArma);
                 await _context.SaveChangesAsync();
 
-                return Ok(novoArma.Id);
+                return Ok(novaArma.Id);
             }
+            
             catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
