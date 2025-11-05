@@ -11,9 +11,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RpgApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class UsuariosController : ControllerBase
@@ -57,6 +59,7 @@ namespace RpgApi.Controllers
             return false;
         }
 
+        [AllowAnonymous]
         [HttpPost("Registrar")]
         public async Task<IActionResult> RegistrarUsuario(Usuario user)
         {
@@ -80,7 +83,7 @@ namespace RpgApi.Controllers
             }
         }
 
-
+        [AllowAnonymous]
         [HttpPost("Autenticar")]
         public async Task<IActionResult> AutenticarUsuario(Usuario credenciais)
         {
