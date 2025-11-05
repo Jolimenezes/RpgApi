@@ -6,15 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using RpgApi.Models;
 using RpgApi.Models.Enuns;
 
+
 namespace RpgApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     public class PersonagensExemploController : ControllerBase
     {
+        
         private static List<Personagem> personagens = new List<Personagem>()
-        {
-            //Colar os objetos da lista do chat aqui
+        {            
             new Personagem() { Id = 1, Nome = "Frodo", PontosVida=100, Forca=17, Defesa=23, Inteligencia=33, Classe=ClasseEnum.Cavaleiro},
             new Personagem() { Id = 2, Nome = "Sam", PontosVida=100, Forca=15, Defesa=25, Inteligencia=30, Classe=ClasseEnum.Cavaleiro},
             new Personagem() { Id = 3, Nome = "Galadriel", PontosVida=100, Forca=18, Defesa=21, Inteligencia=35, Classe=ClasseEnum.Clerigo },
@@ -40,12 +41,16 @@ namespace RpgApi.Controllers
         [HttpGet("{id}")]
         public IActionResult GetSingle(int id)
         {
-            return Ok(personagens.FirstOrDefault(pe => pe.Id == id));
+            return Ok(personagens
+                .FirstOrDefault(laranja => laranja.Id == id));
         }
 
-        [HttpPost]
+         [HttpPost]
         public IActionResult AddPersonagem(Personagem novoPersonagem)
         {
+            if (novoPersonagem.Inteligencia == 0)
+                return BadRequest("Inteligência não pode ter o valor igual a 0 (zero).");
+
             personagens.Add(novoPersonagem);
             return Ok(personagens);
         }
@@ -64,13 +69,27 @@ namespace RpgApi.Controllers
             return Ok(personagens);
         }
 
-        [HttpDelete("{Id}")]
-        public IActionResult Delete(int Id)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            personagens.RemoveAll(pers => pers.Id == Id);
-
+            personagens.RemoveAll(pers => pers.Id == id);
             return Ok(personagens);
         }
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
