@@ -308,7 +308,7 @@ namespace RpgApi.Controllers
 
                 List<Personagem> lista = new List<Personagem>();
                 
-                if (perfil == "Admin")
+                if (User.UsuarioPerfil() == "Admin")
                     lista = await _context.TB_PERSONAGENS.ToListAsync();
                 else
                     lista = await _context.TB_PERSONAGENS
