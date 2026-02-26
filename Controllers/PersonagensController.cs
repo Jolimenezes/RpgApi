@@ -9,10 +9,12 @@ using RpgApi.Models;
 using RpgApi.Models.Enuns;
 using Microsoft.AspNetCore.Authorization;
 using RpgApi.Extensions;
+using RpgApi.Services;
+using RpgApi.Dto;
 
 namespace RpgApi.Controllers
 {
-    [Authorize(Roles="Admin, Jogador")]
+    //[Authorize(Roles="Admin, Jogador")]
     [ApiController]
     [Route("[controller]")]
     public class PersonagensController : ControllerBase
@@ -322,6 +324,22 @@ namespace RpgApi.Controllers
             }
         }
 
+        [HttpGet("ListarPersonagens/{id}/{classeId}")]
+        public async Task<IActionResult> ListarPersonagensAsync(int id, int classeId)
+        {
+            try
+            {
+                PersonagensServices servico = new PersonagensServices(_context);
+
+                List<PersonagemDto> lista = await servico.ListarPersonagens(id, classeId);
+
+                return Ok(lista);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
 
     }
