@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder
-        .Configuration.GetConnectionString("ConexaoLocal"));
+        .Configuration.GetConnectionString("ConexaoSomee"));
 });
 
 // Add services to the container.
